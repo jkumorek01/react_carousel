@@ -19,6 +19,7 @@ const Carousel: React.FC<Props> = ({
   animationDuration,
   // infinite = false,
 }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [width, setWidth] = useState(itemWidth);
   const [frame, setFrames] = useState(frameSize);
   const [steps, setSteps] = useState(step);
@@ -28,64 +29,103 @@ const Carousel: React.FC<Props> = ({
     event.preventDefault();
   };
 
-  // const prevHandler = () => {
+  const prevHandler = () => {
+    const basicIndex = Math.max(0, currentIndex - steps);
 
-  // };
+    setCurrentIndex(basicIndex);
+  };
 
-  // const nextHandler = () => {
+  const nextHandler = () => {
+    const basicIndex = Math.min(
+      currentIndex + steps,
 
-  // };
+      images.length - frame,
+    );
+
+    setCurrentIndex(basicIndex);
+  };
 
   return (
     <div className="Carousel">
-      <form onSubmit={formHandler}>
+      {/* /////////////// form elements://////////////// */}
+      <form onSubmit={formHandler} className="Carousel__form">
         {/* <input type="text" value={} onChange={}/> */}
-        <label>
-          Image size:
-          <input
-            type="number"
-            value={width}
-            onChange={event => setWidth(+event.target.value)}
-          />
-        </label>
+        <label htmlFor="itemId">Image width:</label>
+        <input
+          id="itemId"
+          type="number"
+          value={width}
+          onChange={event => {
+            if (+event.target.value > 300) {
+              return;
+            }
 
-        <label>
-          Number of frames:
-          <input
-            type="number"
-            value={frame}
-            onChange={event => setFrames(+event.target.value)}
-          />
-        </label>
+            return setWidth(+event.target.value);
+          }}
+        />
 
-        <label>
-          Number of steps:
-          <input
-            type="number"
-            value={steps}
-            onChange={event => setSteps(+event.target.value)}
-          />
-        </label>
+        <label htmlFor="frameId">Number of icons:</label>
+        <input
+          id="frameId"
+          type="number"
+          value={frame}
+          onChange={event => {
+            if (+event.target.value > 10) {
+              return;
+            }
 
-        <label>
-          Set animation duration:
-          <input
-            type="number"
-            value={duration}
-            onChange={event => setDuration(+event.target.value)}
-          />
-        </label>
+            return setFrames(+event.target.value);
+          }}
+        />
+
+        <label htmlFor="stepId">Number of steps:</label>
+        <input
+          id="stepId"
+          type="number"
+          value={steps}
+          onChange={event => setSteps(+event.target.value)}
+        />
+
+        <label htmlFor="durationId">Set animation duration:</label>
+        <input
+          id="durationId"
+          type="number"
+          value={duration}
+          onChange={event => setDuration(+event.target.value)}
+        />
+
+        <button
+          type="button"
+          onClick={prevHandler}
+          disabled={currentIndex === 0}
+        >
+          Prev
+        </button>
+        <button
+          type="button"
+          onClick={nextHandler}
+          disabled={currentIndex === images.length - frame}
+          data-cy="next"
+        >
+          Next
+        </button>
       </form>
-      <ul className="Carousel__list">
-        {[...images].map(image => (
-          <li key={image}>
-            <img src={image} alt="1" />
-          </li>
-        ))}
-      </ul>
-
-      {/* <button type="button" onClick={prevHandler}>Prev</button>
-    <button type="button" onClick={nextHandler}>Next</button> */}
+      {/* /////////////// list://////////////// */}
+      <div className="Carousel__images" style={{ width: width * frame }}>
+        <ul
+          className="Carousel__list"
+          style={{
+            transform: `translateX(${-(width * currentIndex)}px)`,
+            transition: `transform ${duration}ms`,
+          }}
+        >
+          {[...images].map(image => (
+            <li key={image}>
+              <img src={image} alt="1" width={width} height={width} />
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
